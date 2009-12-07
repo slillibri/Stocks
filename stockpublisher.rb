@@ -20,10 +20,23 @@ class StockPublisher
       exchange = MQ::Exchange.new(channel, :topic, 'stock_quotes', :durable => true)
       EM.add_periodic_timer(30) do
         %w[aapl msft goog amzn].each do |stock|
-          queue = MQ.queue("#{stock} stock", :durable => true).bind(exchange, :key => "stock.quote.#{stock}")
-          result = YAML::dump(fetchStock(stock))
-          exchange.publish(result, :routing_key => "stock.quote.#{stock}", :persistent => true)
-          puts "Published #{stock.upcase} stock information"
+          ## Check if the market is actually open (no need to track after market) Market is open 9:30 - 16:00
+          ## Probably should check holiday someday
+          day = Date.now()
+          if (day.wday > 0 && day.wday < 6)
+            time = Time.now()
+          
+            if (time.dst?) 
+              time = time + (60 * 60) 
+            end
+          
+            if ((time.hour >= 9 && time.minute > 30) && (time.hour < 16)) 
+              queue = MQ.queue("#{stock} stock", :durable => true).bind(exchange, :key => "stock.quote.#{stock}")
+              result = YAML::dump(fetchStock(stock))
+              exchange.publish(result, :routing_key => "stock.quote.#{stock}", :persistent => true)
+              puts "Published #{stock.upcase} stock information"
+            end
+          end
         end
       end
     end
