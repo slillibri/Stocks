@@ -30,8 +30,8 @@ class StockPublisher
               time = time - (60 * 60) 
             end
             ## If it is past 2:30pm(UTC) and before 21:00(UTC)
-            start = Time.utc(d.year,d.mon,d.day,14,30,00)
-            endtime = Time.utc(d.year,d.mon,d.day,21,00,00)
+            start = Time.utc(day.year,day.mon,day.day,14,30,00)
+            endtime = Time.utc(day.year,day.mon,day.day,21,00,00)
             
             if (time >= start && time <= endtime)
               queue = MQ.queue("#{stock} stock", :durable => true).bind(exchange, :key => "stock.quote.#{stock}")
