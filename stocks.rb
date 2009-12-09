@@ -33,6 +33,3 @@ class StockWatcher
     end    
   end
 end
-
-s = StockWatcher.new(:stock => 'msft', :super => 'Microsoft')
-s.run
