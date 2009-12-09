@@ -29,8 +29,11 @@ class StockPublisher
             if (time.dst?) 
               time = time - (60 * 60) 
             end
-          
-            if ((time.hour >= 14  && time.minute > 30) && (time.hour <= 21 && time.minute == 0 )) 
+            ## If it is past 2:30pm(UTC) and before 21:00(UTC)
+            start = Time.utc(d.year,d.mon,d.day,14,30,00)
+            endtime = Time.utc(d.year,d.mon,d.day,21,00,00)
+            
+            if (time >= start && time <= endtime)
               queue = MQ.queue("#{stock} stock", :durable => true).bind(exchange, :key => "stock.quote.#{stock}")
               result = YAML::dump(fetchStock(stock))
               exchange.publish(result, :routing_key => "stock.quote.#{stock}", :persistent => true)
