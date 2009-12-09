@@ -30,7 +30,7 @@ class StockPublisher
               time = time - (60 * 60) 
             end
           
-            if ((time.hour 4 >=  && time.minute > 30) && (time.hour < 11)) 
+            if ((time.hour >= 4  && time.minute > 30) && (time.hour < 11)) 
               queue = MQ.queue("#{stock} stock", :durable => true).bind(exchange, :key => "stock.quote.#{stock}")
               result = YAML::dump(fetchStock(stock))
               exchange.publish(result, :routing_key => "stock.quote.#{stock}", :persistent => true)
