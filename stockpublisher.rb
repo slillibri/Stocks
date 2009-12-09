@@ -22,7 +22,7 @@ class StockPublisher
         %w[aapl msft goog amzn].each do |stock|
           ## Check if the market is actually open (no need to track after market) Market is open 9:30 - 16:00
           ## Probably should check holiday someday ## Time on the server is UTC
-          day = Date.now()
+          day = Date.today()
           if (day.wday > 0 && day.wday < 6)
             time = Time.now()
           
