@@ -39,8 +39,8 @@ class StockPublisher
             if (time >= start && time <= endtime)
               queue = MQ.queue("#{stock} stock", :durable => true).bind(exchange, :key => "stock.quote.#{stock}")
               result = fetchStock(stock)
-              result['time'] = Time.parse("#{result['last_date']} #{result['last_time']} #{dst}").to_i
-              
+              last_time = Time.parse("#{result['last_date']} #{result['last_time']} #{dst}").to_i
+              result['time'] = last_time.to_s
               result = YAML::dump(result)
               
               exchange.publish(result, :routing_key => "stock.quote.#{stock}", :persistent => true)
