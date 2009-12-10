@@ -39,10 +39,10 @@ class StockPublisher
             if (time >= start && time <= endtime)
               queue = MQ.queue("#{stock} stock", :durable => true).bind(exchange, :key => "stock.quote.#{stock}")
               result = fetchStock(stock)
-              last_time = Time.parse("#{result['last_date']} #{result['last_time']} #{dst}")
-              result['time'] = "\"#{last_time}\""
+              result['time'] = Time.parse("#{result['last_date']} #{result['last_time']} #{dst}").to_i
+              
               result = YAML::dump(result)
-
+              
               exchange.publish(result, :routing_key => "stock.quote.#{stock}", :persistent => true)
               puts "Published #{stock.upcase} stock information"
             end
@@ -61,7 +61,7 @@ class StockPublisher
     msg = res.body.split(',')
     resultHash = {}
     keys = %w[symbol price last_trade last_time change open day_high day_low volume]
-    msg.each {|atom| resultHash[keys[msg.index(atom)]] = atom}
+    msg.each {|atom| resultHash[keys[msg.index(atom)]] = atom.gsub(/\n/, '')}
     resultHash
   end
   
