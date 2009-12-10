@@ -5,6 +5,7 @@ require 'amqp'
 require 'mq'
 require 'pp'
 require 'net/http'
+require 'time'
 
 class StockPublisher
   trap("INT") do
@@ -25,9 +26,11 @@ class StockPublisher
           day = Date.today()
           if (day.wday > 0 && day.wday < 6)
             time = Time.now()
-          
+            dst = 'EST'
             if (time.dst?) 
+              ## Fall back if they have sprung forward
               time = time - (60 * 60) 
+              dst = 'EDT'
             end
             ## If it is past 2:30pm(UTC) and before 21:00(UTC)
             start = Time.utc(day.year,day.mon,day.day,14,30,00)
@@ -35,7 +38,10 @@ class StockPublisher
             
             if (time >= start && time <= endtime)
               queue = MQ.queue("#{stock} stock", :durable => true).bind(exchange, :key => "stock.quote.#{stock}")
-              result = YAML::dump(fetchStock(stock))
+              result = fetchStock(stock)
+              result['time'] = Time.parse("#{result['last_date']} #{result['last_time']} #{dst}")
+              result = YAML::dump(result)
+              
               exchange.publish(result, :routing_key => "stock.quote.#{stock}", :persistent => true)
               puts "Published #{stock.upcase} stock information"
             end
@@ -57,6 +63,7 @@ class StockPublisher
     msg.each {|atom| resultHash[keys[msg.index(atom)]] = atom}
     resultHash
   end
+  
 end
 
 s = StockPublisher.new()
