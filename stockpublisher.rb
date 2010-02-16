@@ -61,11 +61,15 @@ class StockPublisher
     msg = res.body.split(',')
     resultHash = {}
     keys = %w[symbol price last_trade last_time change open day_high day_low volume]
-    msg.each {|atom| resultHash[keys[msg.index(atom)]] = atom.gsub(/\n/, '')}
+    msg.each {|atom| resultHash[keys[msg.index(atom)]] = atom}
     resultHash
   end
   
 end
 
-s = StockPublisher.new()
-s.run
+pid = fork do
+  s = StockPublisher.new()
+  s.run
+end
+
+::Process.detach pid
