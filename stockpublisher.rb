@@ -68,8 +68,13 @@ class StockPublisher
 end
 
 pid = fork do
+  puts "Starting StockPublisher"
+  orig_stdout = $stdout
+  $stdout = File.new('/dev/null', 'w')
   s = StockPublisher.new()
   s.run
+  $stdout = orig_stdout
+  puts "StockPublisher started"
 end
 
 ::Process.detach pid
