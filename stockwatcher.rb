@@ -45,6 +45,7 @@ companies.each do |company|
   orig_stdout = $stdout
   $stdout = File.new('/dev/null', 'w')
   pid = fork do
+    $0 = "stockwatcher.rb (#{company[:super]})"
     s = StockWatcher.new(company)
     s.run
   end
