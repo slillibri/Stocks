@@ -1,0 +1,9 @@
+This is a simple example project using Ruby with RabbitMQ and Cassandra.
+
+stockpublisher.rb This script gathers stock information from Yahoo! and publishes them to different queues in RabbitMQ.
+
+stockwatcher.rb This subscribes to the RabbitMQ queues and puts the data into the appropriate columns in Cassandra.
+
+colstats.rb This just counts the column values for the current day.
+
+stockgrapher.rb This is used to create graphs from the data stored in Cassandra.
