@@ -10,9 +10,11 @@ require 'pp'
 opts = GetoptLong.new(
           ['--symbol', '-s', GetoptLong::REQUIRED_ARGUMENT],
           ['--date', '-d', GetoptLong::REQUIRED_ARGUMENT],
+          ['--num_days', '-n', GetoptLong::REQUIRED_ARGUMENT],
           ['--graph', '-g', GetoptLong::OPTIONAL_ARGUMENT],
           ['--debug', '-v', GetoptLong::NO_ARGUMENT])
-          
+
+conf = {:graph => 'graph.png'}          
 symbol = nil
 date = []
 graph = 'graph.png'
@@ -22,15 +24,17 @@ begin
   opts.each do |opt,arg|
     case opt
     when '--symbol'
-      symbol = arg.capitalize.to_sym
+      conf[:symbol] = arg.capitalize.to_sym
     when '--date'
-      date.push(arg)
+      conf[:date] = arg
     when '--graph'
       unless arg == ''
-        graph = arg
+        conf[:graph] = arg
       end
     when '--debug'
       $debug = true
+    when '--num_days'
+      conf[:days] = arg.to_i
     end
   end
 rescue
@@ -38,13 +42,13 @@ rescue
   exit(1)
 end
 
-unless symbol
+unless conf[:symbol]
   puts "Missing --symbol argument"
   exit(1)
 end
 
-unless date.size
-  puts "Missing one or more --date arguments"
+unless conf[:date]
+  puts "Missing --date argument"
   exit(1)
 end
 
@@ -71,8 +75,14 @@ def writeGraph(stock, key, graph, values)
 end
 
 values = {}
-date.each do |key|
-  values[key] = fetchStocks(symbol, key)
+#date.each do |key|
+conf[:days].times do |day|
+  date = DateTime.parse(conf[:date]) - day
+  key = date.strftime('%Y-%m-%d')
+  if $debug
+    puts "Fetching stocks for #{key}"
+  end
+  values[key] = fetchStocks(conf[:symbol], key)
 end
 
-writeGraph(symbol, date, graph, values)
+writeGraph(conf[:symbol], conf[:date], conf[:graph], values)
