@@ -71,6 +71,7 @@ pid = fork do
   puts "Starting StockPublisher"
   orig_stdout = $stdout
   $stdout = File.new('/dev/null', 'w')
+  $0 = 'stockpublisher.rb'
   s = StockPublisher.new()
   s.run
   $stdout = orig_stdout
