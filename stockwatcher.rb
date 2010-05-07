@@ -26,10 +26,14 @@ class StockWatcher
       queue = MQ.queue("#{@stock} stock")
       queue.bind(MQ.topic('stock_quotes'), :key => "stock.quote.#{@stock}")
       queue.subscribe do |headers,msg|
-        result = YAML::load(msg)
-        key = Date.parse(result['last_trade']).to_s
-        cas.insert(@supercol.to_sym, key, {UUID.new.to_s => result})
-        puts "Inserted #{key} into #{@supercol}"
+        begin
+          result = YAML::load(msg)
+          key = Date.parse(result['last_trade']).to_s
+          cas.insert(@supercol.to_sym, key, {UUID.new.to_s => result})
+          puts "Inserted #{key} into #{@supercol}"
+        rescue
+          retry
+        end
       end 
     end    
   end
