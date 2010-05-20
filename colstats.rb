@@ -5,7 +5,12 @@ require 'date'
 require 'cassandra'
 
 cas = Cassandra.new('Stocks')
-key = Date.today.to_s
+if(ARGV[0])  
+  key = Date.parse(ARGV[0])
+else
+  key = Date.today.to_s
+end
+
 columns = [:Google, :Apple, :Microsoft, :Amazon]
 
 columns.each do |col|
