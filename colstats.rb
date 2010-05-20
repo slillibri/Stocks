@@ -8,7 +8,7 @@ cas = Cassandra.new('Stocks')
 if(ARGV[0])  
   key = Date.parse(ARGV[0])
 else
-  key = Date.today.to_s
+  key = Date.today
 end
 
 columns = [:Google, :Apple, :Microsoft, :Amazon]
