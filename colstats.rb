@@ -14,7 +14,7 @@ end
 columns = [:Google, :Apple, :Microsoft, :Amazon]
 
 columns.each do |col|
-  results = cas.get(col, key, :count => 2880)
+  results = cas.get(col, key.strftime, :count => 2880)
   puts "Column: #{col.to_s}, Result-size: #{results.count}"
 end
 
